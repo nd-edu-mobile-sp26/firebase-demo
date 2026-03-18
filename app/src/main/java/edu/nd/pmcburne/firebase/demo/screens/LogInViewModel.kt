@@ -6,15 +6,17 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseUser
+import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.nd.pmcburne.firebase.demo.repositories.AuthRepository
-import edu.nd.pmcburne.firebase.demo.repositories.FirebaseAuthRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LogInViewModel(
+@HiltViewModel
+class LogInViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
     var email by mutableStateOf("")
@@ -52,7 +54,6 @@ class LogInViewModel(
             errorMessage = null
             try {
                 authRepository.signInWithEmail(email, password)
-                // Note: isLoggedIn and currentUser will update automatically via Flow
             } catch (e: Exception) {
                 errorMessage = e.localizedMessage ?: "An error occurred"
             } finally {
@@ -67,7 +68,6 @@ class LogInViewModel(
             errorMessage = null
             try {
                 authRepository.signUpWithEmail(email, password)
-                // Note: isLoggedIn and currentUser will update automatically via Flow
             } catch (e: Exception) {
                 errorMessage = e.localizedMessage ?: "An error occurred"
             } finally {
