@@ -9,15 +9,13 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 /**
- * This class is used to authenticate a user with Firebase Authentication. This handles both login
- * and creating new accounts.
+ * Implementation of [AuthRepository] using Firebase Authentication.
  */
-
 class FirebaseAuthRepository(
     private val auth: FirebaseAuth
-) {
+) : AuthRepository {
 
-    val currentUserFlow: Flow<FirebaseUser?> = callbackFlow {
+    override val currentUserFlow: Flow<FirebaseUser?> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { auth ->
             trySend(auth.currentUser)
         }
@@ -28,12 +26,12 @@ class FirebaseAuthRepository(
         }
     }
 
-    val currentUser: FirebaseUser?
+    override val currentUser: FirebaseUser?
         get() = auth.currentUser
 
-    fun isUserSignedIn(): Boolean = auth.currentUser != null
+    override fun isUserSignedIn(): Boolean = auth.currentUser != null
 
-    suspend fun signInWithEmail(email: String, password: String) {
+    override suspend fun signInWithEmail(email: String, password: String) {
         try {
             auth.signInWithEmailAndPassword(email, password).await()
             Log.v("Authentication", "Sign in successful: ${auth.currentUser}")
@@ -43,7 +41,7 @@ class FirebaseAuthRepository(
         }
     }
 
-    suspend fun signUpWithEmail(email: String, password: String) {
+    override suspend fun signUpWithEmail(email: String, password: String) {
         try {
             auth.createUserWithEmailAndPassword(email, password).await()
             Log.v("Authentication", "Sign up successful ${auth.currentUser}")
@@ -53,7 +51,7 @@ class FirebaseAuthRepository(
         }
     }
 
-    fun signOut() {
+    override fun signOut() {
         auth.signOut()
     }
 }

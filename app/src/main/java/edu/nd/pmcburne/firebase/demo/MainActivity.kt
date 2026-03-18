@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Connect to firebase services
+        // Connect to firebase service
         val auth = Firebase.auth // Authentication for log-in/log-out
         val firestore = Firebase.firestore // Firestore for access to cloud database
 

@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import edu.nd.pmcburne.firebase.demo.data.Note
+import edu.nd.pmcburne.firebase.demo.repositories.AuthRepository
 import edu.nd.pmcburne.firebase.demo.repositories.FirebaseAuthRepository
 import edu.nd.pmcburne.firebase.demo.repositories.NoteRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,7 +17,7 @@ import kotlinx.coroutines.launch
 
 class NotesViewModel(
     private val noteRepository: NoteRepository,
-    private val authRepository: FirebaseAuthRepository
+    private val authRepository: AuthRepository
 ) : ViewModel() {
     val notes: StateFlow<List<Note>> = noteRepository.getCachedNotes()
         .stateIn(
