@@ -8,6 +8,8 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -62,12 +64,13 @@ class MainActivity : ComponentActivity() {
         // draw screen
         enableEdgeToEdge()
         setContent {
+            val currentUser by authRepository.currentUserFlow.collectAsState(initial = authRepository.currentUser)
+
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    if (logInViewModel.isLoggedIn) {
+                    if (currentUser != null) {
                         NoteListScreen(
                             notesViewModel = notesViewModel,
-                            logInViewModel = logInViewModel,
                             modifier = Modifier.padding(innerPadding)
                         )
                     } else {

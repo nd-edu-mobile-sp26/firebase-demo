@@ -5,7 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseUser
 import edu.nd.pmcburne.firebase.demo.repositories.FirebaseAuthRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class LogInViewModel(
@@ -16,9 +21,21 @@ class LogInViewModel(
 
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
-    var isLoggedIn by mutableStateOf(authRepository.isUserSignedIn())
-    var currentUser by mutableStateOf(authRepository.currentUser)
 
+    val currentUser: StateFlow<FirebaseUser?> = authRepository.currentUserFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = authRepository.currentUser
+        )
+
+    val isLoggedIn: StateFlow<Boolean> = authRepository.currentUserFlow
+        .map { it != null }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = authRepository.isUserSignedIn()
+        )
 
     fun onEmailChange(newEmail: String) {
         email = newEmail
@@ -34,10 +51,7 @@ class LogInViewModel(
             errorMessage = null
             try {
                 authRepository.signInWithEmail(email, password)
-                isLoggedIn = authRepository.isUserSignedIn()
-                if (!isLoggedIn) {
-                    errorMessage = "Sign in failed. Please check your credentials."
-                }
+                // Note: isLoggedIn and currentUser will update automatically via Flow
             } catch (e: Exception) {
                 errorMessage = e.localizedMessage ?: "An error occurred"
             } finally {
@@ -52,10 +66,7 @@ class LogInViewModel(
             errorMessage = null
             try {
                 authRepository.signUpWithEmail(email, password)
-                isLoggedIn = authRepository.isUserSignedIn()
-                if (!isLoggedIn) {
-                    errorMessage = "Sign up failed."
-                }
+                // Note: isLoggedIn and currentUser will update automatically via Flow
             } catch (e: Exception) {
                 errorMessage = e.localizedMessage ?: "An error occurred"
             } finally {
@@ -66,7 +77,6 @@ class LogInViewModel(
 
     fun signOut() {
         authRepository.signOut()
-        isLoggedIn = false
         email = ""
         password = ""
     }

@@ -22,7 +22,6 @@ import java.util.*
 @Composable
 fun NoteListScreen(
     notesViewModel: NotesViewModel,
-    logInViewModel: LogInViewModel,
     modifier: Modifier = Modifier
 ) {
     val notes by notesViewModel.notes.collectAsState()
@@ -42,7 +41,7 @@ fun NoteListScreen(
             TopAppBar(
                 title = { Text("My Notes") },
                 actions = {
-                    IconButton(onClick = { logInViewModel.signOut() }) {
+                    IconButton(onClick = { notesViewModel.signOut() }) {
                         Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Sign Out")
                     }
                 }

@@ -3,6 +3,8 @@ package edu.nd.pmcburne.firebase.demo.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -13,6 +15,9 @@ fun LogInScreen(
     viewModel: LogInViewModel,
     modifier: Modifier = Modifier
 ) {
+    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
+    val currentUser by viewModel.currentUser.collectAsState()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -20,8 +25,8 @@ fun LogInScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        if (viewModel.isLoggedIn) {
-            Text(text = "Logged in as ${viewModel.currentUser?.email} - ID: ${viewModel.currentUser?.uid}!")
+        if (isLoggedIn) {
+            Text(text = "Logged in as ${currentUser?.email} - ID: ${currentUser?.uid}!")
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = { viewModel.signOut() }) {
                 Text("Sign Out")

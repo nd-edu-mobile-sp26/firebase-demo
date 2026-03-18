@@ -2,6 +2,7 @@ package edu.nd.pmcburne.firebase.demo.repositories
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.DocumentSnapshot.ServerTimestampBehavior
 import edu.nd.pmcburne.firebase.demo.data.Note
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -28,7 +29,10 @@ class NoteRepository(
                     return@addSnapshotListener
                 }
                 if (snapshot != null) {
-                    val notes = snapshot.toObjects(Note::class.java)
+                    val notes = snapshot.toObjects(
+                        Note::class.java,
+                        ServerTimestampBehavior.ESTIMATE
+                    )
                     trySend(notes)
                 }
             }

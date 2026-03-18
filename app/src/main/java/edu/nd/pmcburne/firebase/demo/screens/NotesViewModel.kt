@@ -10,6 +10,7 @@ import edu.nd.pmcburne.firebase.demo.repositories.FirebaseAuthRepository
 import edu.nd.pmcburne.firebase.demo.repositories.NoteRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -17,7 +18,6 @@ class NotesViewModel(
     private val noteRepository: NoteRepository,
     private val authRepository: FirebaseAuthRepository
 ) : ViewModel() {
-    // The UI observes notes from the local Room database (Offline-first), not Firestore!
     val notes: StateFlow<List<Note>> = noteRepository.getCachedNotes()
         .stateIn(
             scope = viewModelScope,
@@ -31,9 +31,16 @@ class NotesViewModel(
         private set
 
     init {
-        // On initialization, start collecting from Firestore to keep the local Room cache updated
         viewModelScope.launch {
-            noteRepository.getNotes().collect {}
+            authRepository.currentUserFlow.collectLatest { user ->
+                if (user != null) {
+                    try {
+                        noteRepository.getNotes().collect {}
+                    } catch (_: Exception) {
+                        // Handle potential stream errors here if needed
+                    }
+                }
+            }
         }
     }
 
@@ -80,5 +87,9 @@ class NotesViewModel(
 
     fun clearError() {
         errorMessage = null
+    }
+
+    fun signOut() {
+        authRepository.signOut()
     }
 }
