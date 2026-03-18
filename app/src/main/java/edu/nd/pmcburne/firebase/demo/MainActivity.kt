@@ -18,7 +18,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import edu.nd.pmcburne.firebase.demo.repositories.FirebaseAuthRepository
 import edu.nd.pmcburne.firebase.demo.repositories.NoteDatabase
-import edu.nd.pmcburne.firebase.demo.repositories.NoteRepository
+import edu.nd.pmcburne.firebase.demo.repositories.FirebaseNoteRepository
 import edu.nd.pmcburne.firebase.demo.screens.LogInScreen
 import edu.nd.pmcburne.firebase.demo.screens.LogInViewModel
 import edu.nd.pmcburne.firebase.demo.screens.NoteListScreen
@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
 
         // Create repository objects
         val authRepository = FirebaseAuthRepository(auth)
-        val noteRepository = NoteRepository(firestore, noteDao)
+        val firebaseNoteRepository = FirebaseNoteRepository(firestore, noteDao)
 
 
         // Create view models
@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
         val notesViewModel: NotesViewModel by viewModels {
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return NotesViewModel(noteRepository, authRepository) as T
+                    return NotesViewModel(firebaseNoteRepository, authRepository) as T
                 }
             }
         }

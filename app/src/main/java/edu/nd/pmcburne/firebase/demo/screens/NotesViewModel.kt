@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import edu.nd.pmcburne.firebase.demo.data.Note
 import edu.nd.pmcburne.firebase.demo.repositories.AuthRepository
-import edu.nd.pmcburne.firebase.demo.repositories.FirebaseAuthRepository
+import edu.nd.pmcburne.firebase.demo.repositories.FirebaseNoteRepository
 import edu.nd.pmcburne.firebase.demo.repositories.NoteRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,10 +16,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class NotesViewModel(
-    private val noteRepository: NoteRepository,
+    private val firebaseNoteRepository: NoteRepository,
     private val authRepository: AuthRepository
 ) : ViewModel() {
-    val notes: StateFlow<List<Note>> = noteRepository.getCachedNotes()
+    val notes: StateFlow<List<Note>> = firebaseNoteRepository.getCachedNotes()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -36,7 +36,7 @@ class NotesViewModel(
             authRepository.currentUserFlow.collectLatest { user ->
                 if (user != null) {
                     try {
-                        noteRepository.getNotes().collect {}
+                        firebaseNoteRepository.getNotes().collect {}
                     } catch (_: Exception) {
                         // Handle potential stream errors here if needed
                     }
@@ -65,7 +65,7 @@ class NotesViewModel(
 
         viewModelScope.launch {
             try {
-                noteRepository.addNote(note)
+                firebaseNoteRepository.addNote(note)
                 newNoteText = ""
             } catch (e: Exception) {
                 errorMessage = "Failed to add note: ${e.localizedMessage}"
@@ -78,7 +78,7 @@ class NotesViewModel(
         if (note.authorId == currentUser.uid) {
             viewModelScope.launch {
                 try {
-                    noteRepository.deleteNote(note.id)
+                    firebaseNoteRepository.deleteNote(note.id)
                 } catch (e: Exception) {
                     errorMessage = "Failed to delete note: ${e.localizedMessage}"
                 }
